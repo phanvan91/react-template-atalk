@@ -1,9 +1,13 @@
 import React, {Fragment } from 'react';
 import WindowWidth from './WindowHeightWidth'
-import $ from "jquery";
-
-
+// import $ from "jquery";
+import { NavLink, Link, Route } from "react-router-dom";
+// import Home from './components/Home'
+// import Test from './components/users/Test'
 const addBodyClass = className => document.body.classList.add(className);
+
+
+const removeBodyClass = className => document.body.classList.remove(className);
 
 
 
@@ -14,33 +18,98 @@ class Template extends React.Component {
     constructor (props){
         super(props)
         this.state = {
-            height: window.innerHeight
+            // height: window.innerHeight,
+            toggle : true,// desktop,
+            currentPage : false,
+            childMenu : {
+                crm :false,
+                user : false,
+                sms : false,
+                setting : false
+            }
         };
     }
 
     componentDidMount(){
         addBodyClass('nav-md')
-        let body = document.body.classList.value
-        let bodyHeight = $('body').outerHeight();
-        console.log(bodyHeight)
-        // let footerHeight = body.search('footer_fixed') > -1 ? -10 : 0
-        // console.log(document.getElement('footer').offsetHeight(),'document.footer.height')
-        // let bodyClass = body.search('footer_fixed') > -1 : -10 :
-        // console.log(bodyClass,'dsdsa')
-        // var arraycontainsturtles = (body.indexOf("nav-md") > -1);
-        // console.log(arraycontainsturtles,'sa')
-        console.log(body.search('3123'))
+        // let body = document.body.classList.value
+        // let bodyHeight = $('body').outerHeight();
+        // console.log(bodyHeight)
+        // console.log(body.search('3123'))
     }
 
     height = (height) => {
        this.setState({
            height
        });
+    }
 
+    onClickToggle = () => {
+        this.setState({
+            toggle : !this.state.toggle // mobile
+        },()=>{
+            if(this.state.toggle){
+                removeBodyClass('nav-sm');
+                addBodyClass('nav-md');
+                return true
+            }
+            removeBodyClass('nav-md')
+            addBodyClass('nav-sm')
+        })
+    }
+
+
+    multiMenu = (value) => {
+        // e.stopPropagation();
+        if(value == 'crm'){
+            this.setState({
+                childMenu : {
+                    crm : !this.state.childMenu.crm,
+                }
+            })
+        }else if(value == 'user'){
+            this.setState({
+                childMenu : {
+                    user : !this.state.childMenu.user,
+                }
+            })
+        }else if(value == 'sms'){
+            this.setState({
+                childMenu : {
+                    sms : !this.state.childMenu.sms,
+                }
+            })
+        }else if(value == 'setting'){
+            this.setState({
+                childMenu : {
+                    setting : !this.state.childMenu.setting,
+                }
+            })
+        }
+    }
+
+    currentPage = (match,value) => {
+        return match.pathname == value ? 'current-page' : '';
+    }
+
+    stopProps = (e,single) => {
+        e.stopPropagation();
+        if(single == 'single'){
+            this.setState({
+                childMenu : {
+                    crm :false,
+                    user : false,
+                    sms : false,
+                    setting : false
+                }
+            })
+        }
     }
 
     render(){
-        // console.log(this.state.height)
+        let { crm,user,sms,setting } = this.state.childMenu
+        let {children} = this.props
+        let match = children[0].props.location
         return (
            <Fragment>
                <WindowWidth height={this.height}/>
@@ -63,7 +132,7 @@ class Template extends React.Component {
                                        <h2>홍길동</h2>
                                        <span>(07012345678)</span>
                                        <span style={{color: '#fff', marginLeft: '-5px'}}>
-              <i className="fa fa-check-circle" style={{color: '#35d406'}} />온라인</span>
+                                           <i className="fa fa-check-circle" style={{color: '#35d406'}} />온라인</span>
                                    </div>
                                </div>
                                {/* /menu profile quick info */}
@@ -73,31 +142,68 @@ class Template extends React.Component {
                                    <div className="menu_section">
                                        <h3>MENU</h3>
                                        <ul className="nav side-menu">
-                                           <li><a href="index.html"><i className="fa fa-users" /> 조직도 </a>
+                                           <li
+                                               onClick={(e)=>this.stopProps(e,'single')}
+                                               className={this.currentPage(match,"/")}>
+                                               <Link
+                                                   to="/"
+                                               >
+                                                   <i className="fa fa-users" /> 조직도
+                                               </Link>
                                            </li>
-                                           <li><a><i className="fa fa-headphones" /> CRM <span className="fa fa-chevron-down" /></a>
-                                               <ul className="nav child_menu">
-                                                   <li><a href="고객및상담관리.html"><i className="fa fa-edit" />고객 및 상담 관리</a></li>
-                                                   <li><a href="상담이력.html"><i className="fa fa-book" />상담이력</a></li>
-                                                   <li><a href="회신예약.html"><i className="fa fa-calendar" />회신예약</a></li>
-                                                   <li><a href="설문조사.html"><i className="fa fa-list-ol" />설문조사</a></li>
-                                                   <li><a href="통계.html"><i className="fa fa-bar-chart" />통계</a></li>
+                                           <li className={crm ? 'active' : ''} onClick={()=>this.multiMenu('crm')}>
+                                               <a >
+                                                   <i className="fa fa-headphones" />
+                                                   CRM
+                                                   <span className="fa fa-chevron-down" />
+                                               </a>
+                                               <ul className="nav child_menu" style={{ display : crm ? 'block' : 'none' }}>
+                                                   <li
+                                                       onClick={(e)=>this.stopProps(e)}
+                                                       className={this.currentPage(match,"/about")}
+                                                   >
+                                                       <Link  to="/about"><
+                                                           i className="fa fa-edit" />고객 및 상담 관리
+                                                       </Link>
+                                                   </li>
+                                                   <li
+                                                       onClick={(e)=>this.stopProps(e)}
+                                                       className={this.currentPage(match,"/meomeo")}
+                                                   >
+                                                       <Link  to="/meomeo">
+                                                           <i className="fa fa-book" />상담이력
+                                                       </Link>
+                                                   </li>
+                                                   <li><Link  to="/vkl"><i className="fa fa-calendar" />회신예약</Link></li>
+                                                   <li><Link  to="#"><i className="fa fa-list-ol" />설문조사</Link></li>
+                                                   <li><Link  to="#"><i className="fa fa-bar-chart" />통계</Link></li>
                                                </ul>
                                            </li>
-                                           <li><a><i className="fa fa-user" /> 연락처 <span className="fa fa-chevron-down" /></a>
-                                               <ul className="nav child_menu">
+                                           <li className={user ? 'active' : ''} onClick={()=>this.multiMenu('user')}>
+                                               <a>
+                                                   <i className="fa fa-user" />
+                                                   연락처
+                                                   <span className="fa fa-chevron-down" />
+                                               </a>
+                                               <ul className="nav child_menu" style={{ display : user ? 'block' : 'none' }}>
                                                    <li><a href="주소록.html"><i className="fa fa-book" />주소록</a></li>
                                                    <li><a href="수신거부.html"><i className="fa fa-ban" />수신거부</a></li>
                                                </ul>
                                            </li>
-                                           <li><a href="통화목록.html"><i className="fa fa-phone-square" /> 통화목록 </a>
+                                           <li>
+                                               <NavLink  to="/meomeo"><i className="fa fa-phone-square" /> 통화목록 </NavLink>
                                            </li>
                                            <li><a href="callback.html"><i className="fa fa-mail-reply-all" /> CallBack </a>
                                            </li>
                                            <li><a href="채팅_목록.html"><i className="fa fa-comments" /> 채팅 </a>
                                            </li>
-                                           <li><a><i className="fa fa-envelope" /> SMS <span className="fa fa-chevron-down" /></a>
-                                               <ul className="nav child_menu">
+                                           <li className={sms ? 'active' : ''} onClick={(e)=>this.multiMenu(e,'sms')}>
+                                               <a>
+                                                   <i className="fa fa-envelope" />
+                                                   SMS
+                                                   <span className="fa fa-chevron-down" />
+                                               </a>
+                                               <ul className="nav child_menu" style={{ display : sms ? 'block' : 'none' }}>
                                                    <li><a href="SMS.html"><i className="fa fa-envelope" />SMS 발송</a></li>
                                                    <li><a href="SMS대량.html"><i className="fa fa-paper-plane-o" />SMS 대량 발송</a></li>
                                                    <li><a href="MO.html"><i className="fa fa-envelope-o" />MO 서비스</a></li>
@@ -109,8 +215,13 @@ class Template extends React.Component {
                                            </li>
                                            <li><a href="공지사항.html"><i className="fa fa-bullhorn" /> 공지사항 </a>
                                            </li>
-                                           <li><a><i className="fa fa-cog" /> 설정 <span className="fa fa-chevron-down" /></a>
-                                               <ul className="nav child_menu">
+                                           <li className={setting ? 'active' : ''} onClick={()=>this.multiMenu('setting')}>
+                                               <a>
+                                                   <i className="fa fa-cog" />
+                                                   설정
+                                                   <span className="fa fa-chevron-down" />
+                                               </a>
+                                               <ul className="nav child_menu"  style={{ display : setting ? 'block' : 'none' }}>
                                                    <li><a href="계정.html"><i className="fa fa-user" />계정</a></li>
                                                    <li><a href="전화설정.html"><i className="fa fa-phone" />전화설정</a></li>
                                                    <li><a href="결제.html"><i className="fa fa-credit-card" />결제</a></li>
@@ -138,7 +249,7 @@ class Template extends React.Component {
                        <div className="top_nav">
                            <div className="nav_menu">
                                <nav>
-                                   <div className="nav toggle">
+                                   <div className="nav toggle" onClick={this.onClickToggle}>
                                        <a id="menu_toggle"><i className="fa fa-bars" /></a>
                                    </div>
                                    <div className="form-group">
@@ -339,8 +450,11 @@ class Template extends React.Component {
                                </div>
                            </div>
                        </div>
-                       <div className="right_col" role="main" style={{ minHeight : this.state.height }}>
-
+                       <div className="right_col"
+                            role="main"
+                            // style={{ minHeight : this.state.height }}
+                       >
+                           {this.props.children}
                        </div>
 
                    </div>
